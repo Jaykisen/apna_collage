@@ -10,22 +10,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up SSH key and known hosts
-      run: |
-        echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
-        chmod 600 private_key.pem
-        mkdir -p ~/.ssh
-        ssh-keyscan -H <YOUR_EC2_PUBLIC_IP> | tee -a ~/.ssh/known_hosts
+      - name: Set up SSH key and known hosts
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+          mkdir -p ~/.ssh
+          ssh-keyscan -H <YOUR_EC2_PUBLIC_IP> >> ~/.ssh/known_hosts
 
-    - name: Deploy to EC2 via SSH
-      run: |
-        ssh -i private_key.pem -o StrictHostKeyChecking=no ec2-user@<YOUR_EC2_PUBLIC_IP> << 'EOF'
-          cd /home/ec2-user/apna_collage
-          git pull origin main
-          docker-compose down
-          docker system prune -af
-          docker-compose up -d --build
-        EOF
+      - name: Deploy via SSH
+        run: |
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ec2-user@<YOUR_EC2_PUBLIC_IP> << 'EOF'
+            cd /home/ec2-user/apna_collage
+            git pull origin main
+            docker-compose down
+            docker system prune -af
+            docker-compose up -d --build
+          EOF
